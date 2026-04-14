@@ -6,7 +6,7 @@ sys.stdout.reconfigure(encoding='utf-8')
 sys.stderr.reconfigure(encoding='utf-8')
 
 def run_command_on_pi(command):
-    HOSTNAME = "ess.local"
+    HOSTNAME = "10.186.162.189"
     USERNAME = "ess"
     PASSWORD = "2026"
     

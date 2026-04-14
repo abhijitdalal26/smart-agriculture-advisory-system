@@ -15,6 +15,13 @@ const TABS = [
   { key: 'light_lux',     label: 'Light',        color: '#fbbf24', unit: ' Lux' },
 ];
 
+const TIME_RANGES = [
+  { days: 1, label: '24H' },
+  { days: 20, label: '20 Days' },
+  { days: 25, label: '25 Days' },
+  { days: 180, label: '6 Months' },
+];
+
 const CustomTooltip = ({ active, payload, label, unit }) => {
   if (!active || !payload?.length) return null;
   return (
@@ -32,40 +39,66 @@ const CustomTooltip = ({ active, payload, label, unit }) => {
 };
 
 export default function HistoryChart() {
-  const [history, setHistory]   = useState([]);
-  const [activeTab, setActiveTab] = useState('air_temp');
+  const [history, setHistory]     = useState([]);
+  const [activeTab, setActiveTab]   = useState('air_temp');
+  const [timeRange, setTimeRange] = useState(1);
 
   useEffect(() => {
     const fetch = async () => {
       try {
-        const res = await axios.get(`${API}/api/sensors/history?limit=48`, { timeout: 5000 });
-        const rows = res.data.map(r => ({
-          ...r,
-          time: new Date(r.timestamp).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
-        }));
+        const res = await axios.get(`${API}/api/sensors/history?days=${timeRange}`, { timeout: 8000 });
+        const formatStr = timeRange === 1 ? 'time' : 'date'; // simple toggle for formatting
+        const rows = res.data.map(r => {
+          const timestamp = new Date(r.timestamp);
+          const formatted = timeRange === 1 
+            ? timestamp.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })
+            : timestamp.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+          return {
+            ...r,
+            displayTime: formatted,
+          };
+        });
         setHistory(rows);
       } catch (_) {}
     };
     fetch();
     const id = setInterval(fetch, 30000);
     return () => clearInterval(id);
-  }, []);
+  }, [timeRange]);
 
   const tab = TABS.find(t => t.key === activeTab) || TABS[0];
 
   return (
     <div className="card history-card history-row" style={{padding: '24px'}}>
-      <div className="chart-tabs">
-        {TABS.map(t => (
-          <button
-            key={t.key}
-            className={`chart-tab ${activeTab === t.key ? 'active' : ''}`}
-            onClick={() => setActiveTab(t.key)}
-            style={activeTab === t.key ? { background: t.color } : {}}
-          >
-            {t.label}
-          </button>
-        ))}
+      
+      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem'}}>
+        {/* Sensor Tabs */}
+        <div className="chart-tabs" style={{marginBottom: 0}}>
+          {TABS.map(t => (
+            <button
+              key={t.key}
+              className={`chart-tab ${activeTab === t.key ? 'active' : ''}`}
+              onClick={() => setActiveTab(t.key)}
+              style={activeTab === t.key ? { background: t.color, color: '#fff' } : {}}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Time Range Tabs */}
+        <div className="chart-tabs" style={{marginBottom: 0}}>
+          {TIME_RANGES.map(tr => (
+            <button
+              key={tr.days}
+              className={`chart-tab ${timeRange === tr.days ? 'active' : ''}`}
+              onClick={() => setTimeRange(tr.days)}
+              style={timeRange === tr.days ? { background: '#2D6A4F', color: '#fff' } : {}}
+            >
+              {tr.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="chart-wrap">
@@ -83,7 +116,7 @@ export default function HistoryChart() {
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" vertical={false} />
-              <XAxis dataKey="time" tick={{ fontSize: 11, fill: '#9CA3AF' }} axisLine={false} tickLine={false} interval="preserveStartEnd" minTickGap={30} />
+              <XAxis dataKey="displayTime" tick={{ fontSize: 11, fill: '#9CA3AF' }} axisLine={false} tickLine={false} interval="preserveStartEnd" minTickGap={30} />
               <YAxis tick={{ fontSize: 11, fill: '#9CA3AF' }} axisLine={false} tickLine={false} />
               <Tooltip content={<CustomTooltip unit={tab.unit} />} cursor={{stroke: '#E5E7EB', strokeWidth: 1}} />
               <Area

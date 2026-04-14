@@ -7,7 +7,7 @@ Endpoints:
   POST /api/sensors/manual    → accept manual NPK / soil-color input from dashboard
 """
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional
 
 from fastapi import APIRouter, Depends, Query
@@ -52,16 +52,24 @@ def get_latest_sensors():
 
 @router.get("/history")
 def get_sensor_history(
-    limit: int = Query(default=48, ge=1, le=500),
+    days: float = Query(default=1, ge=0.1, le=365),
     db: Session = Depends(get_db)
 ):
-    """Return the last `limit` sensor readings from SQLite."""
+    """Return sensor readings from the last `days` days, downsampled to ~800 points max."""
+    cutoff = datetime.utcnow() - timedelta(days=days)
     rows = (
         db.query(SensorReading)
-        .order_by(SensorReading.timestamp.desc())
-        .limit(limit)
+        .filter(SensorReading.timestamp >= cutoff)
+        .order_by(SensorReading.timestamp.asc())
         .all()
     )
+    
+    # Downsample logic: limit to ~800 data points to prevent browser freeze
+    max_points = 800
+    if len(rows) > max_points:
+        step = max(1, len(rows) // max_points)
+        rows = rows[::step]
+
     return [
         {
             "timestamp":     r.timestamp.isoformat() if r.timestamp else None,
@@ -72,7 +80,7 @@ def get_sensor_history(
             "soil_ph":       r.soil_ph,
             "light_lux":     r.light_lux,
         }
-        for r in reversed(rows)   # chronological order
+        for r in rows
     ]
 
 
