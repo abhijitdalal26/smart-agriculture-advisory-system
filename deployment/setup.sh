@@ -5,7 +5,7 @@
 
 set -e
 WORKSPACE="/home/ess/.openclaw/workspace"
-PROJECT="$WORKSPACE/krishimitra"
+PROJECT="$WORKSPACE/smart-agriculture-advisory-system"
 DEPLOY="$PROJECT/deployment"
 
 echo "============================================="
@@ -27,7 +27,7 @@ cd "$PROJECT"
 
 # ── 2. Python dependencies ────────────────────────────────────────────────────
 echo "[2/7] Installing Python dependencies..."
-pip3 install -r backend/requirements.txt --break-system-packages
+pip3 install -r backend/requirements.txt --ignore-installed typing_extensions --break-system-packages
 
 # ── 3. luma.lcd and PIL for TFT ───────────────────────────────────────────────
 echo "[3/7] Installing TFT display dependencies..."

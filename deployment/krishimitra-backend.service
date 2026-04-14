@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 User=ess
-WorkingDirectory=/home/ess/.openclaw/workspace/krishimitra
+WorkingDirectory=/home/ess/.openclaw/workspace/smart-agriculture-advisory-system
 ExecStart=/usr/bin/python3 -m uvicorn backend.main:app --host 0.0.0.0 --port 8000
 Restart=always
 RestartSec=5

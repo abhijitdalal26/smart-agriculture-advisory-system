@@ -6,7 +6,7 @@
 # ============================================================
 
 set -e
-PROJECT_DIR="/home/ess/.openclaw/workspace/krishimitra"
+PROJECT_DIR="/home/ess/.openclaw/workspace/smart-agriculture-advisory-system"
 WORKSPACE_DIR="/home/ess/.openclaw/workspace"
 
 echo ""

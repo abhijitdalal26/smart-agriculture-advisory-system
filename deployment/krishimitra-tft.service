@@ -4,7 +4,7 @@ After=krishimitra-backend.service
 
 [Service]
 User=ess
-WorkingDirectory=/home/ess/.openclaw/workspace/krishimitra
+WorkingDirectory=/home/ess/.openclaw/workspace/smart-agriculture-advisory-system
 ExecStart=/usr/bin/python3 display_tft.py
 Restart=always
 RestartSec=10

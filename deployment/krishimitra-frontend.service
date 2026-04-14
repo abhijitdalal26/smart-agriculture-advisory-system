@@ -4,8 +4,8 @@ After=network.target
 
 [Service]
 User=ess
-WorkingDirectory=/home/ess/.openclaw/workspace/krishimitra/frontend
-ExecStart=/usr/local/bin/serve -s dist -l 3000
+WorkingDirectory=/home/ess/.openclaw/workspace/smart-agriculture-advisory-system/frontend
+ExecStart=/usr/bin/serve -s dist -l 3000
 Restart=always
 RestartSec=5
 

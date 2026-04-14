@@ -31,11 +31,15 @@ When running on your laptop/PC, the `sensor_hub.py` (which targets Raspberry Pi 
 Production deployment targets the Raspberry Pi physical hub.
 
 ### File Transport
-The system code is cloned over Git to the Pi workspace `/home/ess/.openclaw/workspace/krishimitra`.
+The system code is cloned over Git to the Pi workspace `/home/ess/.openclaw/workspace/smart-agriculture-advisory-system`.
+
+**Windows Helper Scripts**: If deploying from a Windows environment where interactive SSH passwords fail for automation, two Python bridge scripts have been added locally:
+- `clone_on_pi.py`: Uses `paramiko` to log into the Pi via SSH to clone the repository remotely.
+- `exec_on_pi.py`: A reusable script to execute shell commands securely over SSH. It also supports transferring files using an `UPLOAD:local_path->remote_path` syntax.
 
 ### Quick Setup (`setup.sh` and `quick_deploy.sh`)
 Included in `/deployment` are bash scripts. They automate:
-1. `pip3` dependency installs (with `--break-system-packages` for global Pi execution environments where permitted).
+1. `pip3` dependency installs (using `--ignore-installed typing_extensions` to seamlessly bypass Debian package locks, along with `--break-system-packages` for edge deployment).
 2. The `npm install` and Node `npm run build` static compilation of the React app into pure HTML/CSS/JS files in the `/dist` directory.
 3. Movement of `openclaw/*.md` files containing natural language knowledge over to the agent's memory banks.
 
