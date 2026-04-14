@@ -1,0 +1,14 @@
+[Unit]
+Description=KrishiMitra TFT Display Driver (ST7735 1.8")
+After=krishimitra-backend.service
+
+[Service]
+User=ess
+WorkingDirectory=/home/ess/.openclaw/workspace/krishimitra
+ExecStart=/usr/bin/python3 display_tft.py
+Restart=always
+RestartSec=10
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target

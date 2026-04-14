@@ -1,0 +1,15 @@
+[Unit]
+Description=KrishiMitra Sensor Hub (DHT22/BH1750/DS18B20/Arduino/LCD)
+After=krishimitra-backend.service
+
+[Service]
+User=ess
+WorkingDirectory=/home/ess/.openclaw/workspace/krishimitra
+ExecStart=/usr/bin/python3 sensor_hub.py
+Restart=always
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+Environment=BLINKA_FORCEBOARD=RASPBERRY_PI_4B
+
+[Install]
+WantedBy=multi-user.target

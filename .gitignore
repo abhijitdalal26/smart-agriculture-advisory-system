@@ -1,4 +1,38 @@
-venv/
-.ipynb_checkpoints/
+# Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+venv/
+.env
+.venv/
+
+# Database / runtime state
+krishimitra.db
+sensors.json
+
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# macOS / Windows
+.DS_Store
+Thumbs.db
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Model files (large — already in repo, keep tracked)
+# model/*.json  ← keep
+# model/*.pkl   ← keep

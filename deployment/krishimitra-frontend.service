@@ -1,0 +1,13 @@
+[Unit]
+Description=KrishiMitra React Frontend (served via 'serve')
+After=network.target
+
+[Service]
+User=ess
+WorkingDirectory=/home/ess/.openclaw/workspace/krishimitra/frontend
+ExecStart=/usr/local/bin/serve -s dist -l 3000
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
