@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:8000`;
 
 const SOIL_COLORS = [
   { name: 'Black Soil', color: '#1a0a00', npk: { N: 80, P: 40, K: 40 } },

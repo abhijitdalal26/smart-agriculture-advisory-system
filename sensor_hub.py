@@ -40,14 +40,23 @@ LOOP_SLEEP     = 2       # main loop delay (seconds)
 
 # ── LCD Init ─────────────────────────────────────────────────────────────────
 time.sleep(2)
-lcd = CharLCD('PCF8574', 0x27, port=1, cols=16, rows=2)
-lcd.clear()
+try:
+    lcd = CharLCD('PCF8574', 0x27, port=1, cols=16, rows=2)
+    lcd.clear()
+except Exception as e:
+    print(f"LCD Init failed: {e}")
+    lcd = None
 
 # ── BH1750 Light Sensor (I2C) ────────────────────────────────────────────────
-bus        = smbus.SMBus(1)
+try:
+    bus = smbus.SMBus(1)
+except Exception as e:
+    print(f"I2C bus Init failed: {e}")
+    bus = None
 light_addr = 0x23
 
 def read_light() -> float:
+    if bus is None: return 0.0
     try:
         data = bus.read_i2c_block_data(light_addr, 0x20)
         return (data[0] << 8 | data[1]) / 1.2
@@ -124,6 +133,8 @@ def _update_lcd(air_t, air_h, light, soil_t, soil_m, soil_p):
 
     try:
         with _lcd_lock:
+            if lcd is None: return
+            
             lcd.clear()
             if _lcd_screen == 0:
                 # Screen 1 — Ambient Environment
