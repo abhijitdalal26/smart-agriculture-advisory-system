@@ -30,8 +30,13 @@ When running on your laptop/PC, the `sensor_hub.py` (which targets Raspberry Pi 
 
 Production deployment targets the Raspberry Pi physical hub.
 
-### File Transport
+### File Transport & Remote SSH Credentials
 The system code is cloned over Git to the Pi workspace `/home/ess/.openclaw/workspace/smart-agriculture-advisory-system`.
+
+To remotely invoke Git, SSH, or push configurations to the Pi over the network via bridging scripts, your system must use these exact credentials:
+- **Hostname**: `ess` (or IP resolution `ess.local`)
+- **Username**: `ess`
+- **Password**: `2026`
 
 **Windows Helper Scripts**: If deploying from a Windows environment where interactive SSH passwords fail for automation, two Python bridge scripts have been added locally:
 - `clone_on_pi.py`: Uses `paramiko` to log into the Pi via SSH to clone the repository remotely.
