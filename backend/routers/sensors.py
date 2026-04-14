@@ -19,6 +19,8 @@ from backend import sensor_store
 
 router = APIRouter(prefix="/api/sensors", tags=["sensors"])
 
+last_db_write = None
+
 
 # ──────────────────────────── Pydantic models ────────────────────────────────
 
@@ -88,23 +90,28 @@ def get_sensor_history(
 def update_sensors(payload: SensorUpdatePayload, db: Session = Depends(get_db)):
     """
     Called by sensor_hub.py every ~2 seconds.
-    Updates in-memory cache and persists to SQLite.
+    Updates in-memory cache but throttles SQLite persistence to every 15 minutes.
     """
+    global last_db_write
     data = payload.model_dump(exclude_none=True)
     sensor_store.update(data)
 
-    # Persist to SQLite (write every call; sensor_hub manages frequency)
-    row = SensorReading(
-        timestamp     = datetime.utcnow(),
-        air_temp      = payload.air_temp,
-        air_humidity  = payload.air_humidity,
-        soil_temp     = payload.soil_temp,
-        soil_moisture = payload.soil_moisture,
-        soil_ph       = payload.soil_ph,
-        light_lux     = payload.light_lux,
-    )
-    db.add(row)
-    db.commit()
+    now = datetime.utcnow()
+    # Write db row if enough time has passed (900 seconds = 15 minutes)
+    if last_db_write is None or (now - last_db_write).total_seconds() >= 900:
+        row = SensorReading(
+            timestamp     = now,
+            air_temp      = payload.air_temp,
+            air_humidity  = payload.air_humidity,
+            soil_temp     = payload.soil_temp,
+            soil_moisture = payload.soil_moisture,
+            soil_ph       = payload.soil_ph,
+            light_lux     = payload.light_lux,
+        )
+        db.add(row)
+        db.commit()
+        last_db_write = now
+
     return {"status": "ok"}
 
 

@@ -54,3 +54,7 @@ There are 3 distinct services deployed to `/etc/systemd/system/`:
 1. `krishimitra-backend.service`: Runs `uvicorn` on port 8000, and natively serves the React frontend `dist/` directory from `/`.
 2. `krishimitra-sensors.service`: Runs the continuous `sensor_hub.py` sensing loop.
 3. `krishimitra-tft.service`: Controls the ST7735 screen draw operations independent of the backend load.
+
+**Debugging Tips**: If a service crashes or the hardware isn't responding, use `journalctl` on the Pi to view the active logs:
+- View TFT logs: `sudo journalctl -u krishimitra-tft.service -n 50 --no-pager`
+- View Sensor hub logs: `sudo journalctl -u krishimitra-sensors.service -n 50 --no-pager`

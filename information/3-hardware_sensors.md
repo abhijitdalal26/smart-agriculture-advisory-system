@@ -27,3 +27,4 @@ KrishiMitra relies on an array of standard IoT sensors connected to a Raspberry 
 - **I2C Bus Contention**: Ensure `i2cdetect -y 1` shows both `0x23` and `0x27`.
 - **Serial Permission**: Ensure the `ess` user is in the `dialout` group to read `/dev/ttyACM0`.
 - **SPI Loading**: Ensure SPI is enabled via `raspi-config` before starting the TFT service.
+- **ST7735 Display Mode Error**: Initializing the luma.lcd ST7735 driver with `width=128, height=160` may throw an `Unsupported display mode` error. Fix this by initializing with `width=160, height=128, rotate=1` which effectively provides a 128x160 portrait frame.
