@@ -1,6 +1,6 @@
-// AlertBanner — shows active alerts from /api/alerts
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { AlertTriangle, AlertCircle, Info } from 'lucide-react';
 
 const API = import.meta.env.VITE_API_URL || "";
 
@@ -25,11 +25,18 @@ export default function AlertBanner() {
 
   const sorted   = [...alerts].sort((a, b) => SEV_ORDER[a.severity] - SEV_ORDER[b.severity]);
   const topSev   = sorted[0]?.severity || 'info';
-  const ICONS    = { critical: '🚨', warning: '⚠️', info: 'ℹ️' };
+
+  const renderIcon = () => {
+    switch(topSev) {
+      case 'critical': return <AlertCircle size={24} />;
+      case 'warning': return <AlertTriangle size={24} />;
+      default: return <Info size={24} />;
+    }
+  }
 
   return (
     <div className={`alert-banner ${topSev}`}>
-      <span className="alert-icon">{ICONS[topSev]}</span>
+      <span className="alert-icon">{renderIcon()}</span>
       <div className="alert-list">
         {sorted.map(a => (
           <div key={a.id} className="alert-item">

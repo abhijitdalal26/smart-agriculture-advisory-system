@@ -15,6 +15,7 @@
   "dependencies": {
     "@vitejs/plugin-react": "^6.0.1",
     "axios": "^1.15.0",
+    "lucide-react": "^1.8.0",
     "react-router-dom": "^7.14.1",
     "recharts": "^3.8.1"
   }

@@ -1,6 +1,6 @@
-// ManualInputPanel — NPK/soil color + crop/state dropdowns
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Palette, Baseline, RefreshCw, CheckCircle2 } from 'lucide-react';
 
 const API = import.meta.env.VITE_API_URL || "";
 
@@ -32,14 +32,12 @@ export default function ManualInputPanel({ onSubmit }) {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess]     = useState(false);
 
-  // Auto-detect state via IP geolocation on mount
   useEffect(() => {
     axios.get(`${API}/api/weather/location`, { timeout: 5000 })
       .then(r => { if (r.data?.state) setState(r.data.state); })
       .catch(() => {});
   }, []);
 
-  // When soil color chosen, auto-fill NPK
   const selectColor = (sc) => {
     setSoilColor(sc.name);
     if (npkMode === 'color') { setN(sc.npk.N); setP(sc.npk.P); setK(sc.npk.K); }
@@ -67,23 +65,22 @@ export default function ManualInputPanel({ onSubmit }) {
   };
 
   return (
-    <div className="card input-card input-row">
-      <div className="card-title">🧪 Manual Input — Field Parameters</div>
+    <div className="card input-row">
 
       {/* NPK Mode Toggle */}
       <div className="npk-mode-toggle">
         <button className={`npk-mode-btn ${npkMode === 'color' ? 'active' : ''}`} onClick={() => setNpkMode('color')}>
-          🎨 Soil Color
+           Soil Color
         </button>
         <button className={`npk-mode-btn ${npkMode === 'manual' ? 'active' : ''}`} onClick={() => setNpkMode('manual')}>
-          🔢 Manual NPK
+           Manual NPK
         </button>
       </div>
 
       {/* Soil Color Picker */}
       {npkMode === 'color' && (
-        <div style={{ marginBottom: '1rem' }}>
-          <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.8px', fontWeight: 600 }}>
+        <div style={{ marginBottom: '1.5rem' }}>
+          <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '0.5rem', fontWeight: 500 }}>
             Select your soil color — NPK will be auto-filled
           </div>
           <div className="soil-color-grid">
@@ -94,14 +91,12 @@ export default function ManualInputPanel({ onSubmit }) {
                 style={{ background: sc.color }}
                 onClick={() => selectColor(sc)}
                 title={sc.name}
-              >
-                {sc.name.split(' ')[0]}
-              </button>
+              />
             ))}
           </div>
           {soilColor && (
-            <div style={{ marginTop: '0.5rem', fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
-              {soilColor} → N:{SOIL_COLORS.find(s=>s.name===soilColor)?.npk.N} &nbsp;
+            <div style={{ marginTop: '0.75rem', fontSize: '14px', color: 'var(--text-secondary)' }}>
+              Selected: <span style={{fontWeight: 600, color: 'var(--text-primary)'}}>{soilColor}</span> → N:{SOIL_COLORS.find(s=>s.name===soilColor)?.npk.N} &nbsp;
               P:{SOIL_COLORS.find(s=>s.name===soilColor)?.npk.P} &nbsp;
               K:{SOIL_COLORS.find(s=>s.name===soilColor)?.npk.K}
             </div>
@@ -111,7 +106,7 @@ export default function ManualInputPanel({ onSubmit }) {
 
       {/* Manual NPK */}
       {npkMode === 'manual' && (
-        <div className="input-grid" style={{ marginBottom: '1rem' }}>
+        <div className="input-grid" style={{ marginBottom: '1.5rem' }}>
           {[['N (Nitrogen)', N, setN], ['P (Phosphorous)', P, setP], ['K (Potassium)', K, setK]].map(([lbl, val, setter]) => (
             <div className="input-group" key={lbl}>
               <label>{lbl}</label>
@@ -150,7 +145,13 @@ export default function ManualInputPanel({ onSubmit }) {
       </div>
 
       <button className="submit-btn" onClick={handleSubmit} disabled={submitting}>
-        {submitting ? '⟳ Updating…' : success ? '✅ Updated!' : '🔄 Run Predictions'}
+        {submitting ? (
+          <span style={{display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center'}}><RefreshCw size={18} className="refresh-spin" /> Updating...</span>
+        ) : success ? (
+          <span style={{display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center'}}><CheckCircle2 size={18} /> Updated!</span>
+        ) : (
+          <span style={{display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center'}}>Run Predictions</span>
+        )}
       </button>
     </div>
   );

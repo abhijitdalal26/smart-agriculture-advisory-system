@@ -1,4 +1,3 @@
-// SensorCard — animated real-time sensor tile
 import { useState, useEffect } from 'react';
 
 export default function SensorCard({ icon, label, value, unit, sub, colorClass, nullText = '--' }) {
@@ -16,9 +15,11 @@ export default function SensorCard({ icon, label, value, unit, sub, colorClass, 
 
   return (
     <div className={`sensor-card ${colorClass} ${isNull ? 'null-state' : ''}`}
-         style={{ transition: 'all 0.2s ease', ...(animate ? { transform: 'scale(1.03)' } : {}) }}>
-      <span className="sc-icon">{icon}</span>
-      <span className="sc-label">{label}</span>
+         style={{ transition: 'all 0.2s ease', ...(animate ? { transform: 'scale(1.02)' } : {}) }}>
+      <div className="sc-header">
+        <div className="sc-icon">{icon}</div>
+        <span className="sc-label">{label}</span>
+      </div>
       <div className="sc-value">
         {isNull ? nullText : (
           <>
