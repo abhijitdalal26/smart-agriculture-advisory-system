@@ -61,7 +61,7 @@ app.include_router(weather.router)
 app.include_router(alerts.router)
 
 
-@app.get("/")
+@app.get("/api")
 def root():
     return {
         "name":    "KrishiMitra API",
