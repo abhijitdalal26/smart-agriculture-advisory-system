@@ -1,0 +1,48 @@
+# Development & Deployment Guide
+
+This document explains how KrishiMitra is built, run locally in development, and finally deployed to the Raspberry Pi.
+
+## Developer Environment (Local PC)
+
+The development environment consists of the FastAPI backend and the React Vite frontend running in tandem.
+
+### Starting the Backend
+1. Open a terminal.
+2. Navigate to `/backend`.
+3. Activate the virtual environment (if using one).
+4. Identify that all ML `.pkl` and `.json` files are properly stored in `/backend/model/`.
+5. Run: `python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000`
+   - Test endpoints by heading to `http://localhost:8000/docs` to see the native FastAPI SwaggerUI documentation.
+
+### Starting the Frontend
+1. Open a second terminal.
+2. Navigate to `/frontend`.
+3. Run `npm install` (first time only).
+4. Run: `npm run dev`
+5. Open your browser to `http://localhost:3000` or whatever address Vite provides. The frontend is configured via `vite.config.js` to proxy `/api/*` traffic automatically to `localhost:8000`.
+
+### Simulation mode
+When running on your laptop/PC, the `sensor_hub.py` (which targets Raspberry Pi GPIOs and I2C lines) won't run natively. However, the architecture is decoupled. You can use the `POST /api/sensors/manual` endpoint via standard Swagger UI or the Dashboard's manual control panel to inject "fake" sensor data directly into the system state and test ML prediction reactions visually.
+
+---
+
+## Deployment Environment (Raspberry Pi Edge Device)
+
+Production deployment targets the Raspberry Pi physical hub.
+
+### File Transport
+The system code is cloned over Git to the Pi workspace `/home/ess/.openclaw/workspace/krishimitra`.
+
+### Quick Setup (`setup.sh` and `quick_deploy.sh`)
+Included in `/deployment` are bash scripts. They automate:
+1. `pip3` dependency installs (with `--break-system-packages` for global Pi execution environments where permitted).
+2. The `npm install` and Node `npm run build` static compilation of the React app into pure HTML/CSS/JS files in the `/dist` directory.
+3. Movement of `openclaw/*.md` files containing natural language knowledge over to the agent's memory banks.
+
+### Systemd Services 
+KrishiMitra includes native Ubuntu/Debian background process management, ensuring it reboots securely without human interaction.
+There are 4 distinct services deployed to `/etc/systemd/system/`:
+1. `krishimitra-backend.service`: Runs `uvicorn` on port 8000.
+2. `krishimitra-frontend.service`: Serves the static Vite build locally via `serve` on port 3000 mapping globally.
+3. `krishimitra-sensors.service`: Runs the continuous `sensor_hub.py` sensing loop.
+4. `krishimitra-tft.service`: Controls the ST7735 screen draw operations independent of the backend load.
