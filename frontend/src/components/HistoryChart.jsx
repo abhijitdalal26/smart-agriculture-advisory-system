@@ -17,9 +17,9 @@ const TABS = [
 
 const TIME_RANGES = [
   { days: 1, label: '24H' },
-  { days: 20, label: '20 Days' },
-  { days: 25, label: '25 Days' },
-  { days: 180, label: '6 Months' },
+  { days: 7, label: '7 Days' },
+  { days: 30, label: '30 Days' },
+  { days: 90, label: '3 Months' },
 ];
 
 const CustomTooltip = ({ active, payload, label, unit }) => {

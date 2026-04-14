@@ -27,7 +27,7 @@ from luma.lcd.device import st7735
 # ── SPI / GPIO config for 1.8" ST7735 on Raspberry Pi ───────────────────────
 # Typical wiring: CS=GPIO8(CE0), DC=GPIO24, RST=GPIO25, SPI bus 0, device 0
 serial_iface = spi(port=0, device=0, gpio_DC=24, gpio_RST=25, bus_speed_hz=16000000)
-device       = st7735(serial_iface, width=128, height=160, h_offset=0, v_offset=0, rotate=0)
+device       = st7735(serial_iface, width=160, height=128, h_offset=0, v_offset=0, rotate=1)
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 BASE_DIR    = os.path.dirname(os.path.abspath(__file__))
