@@ -45,8 +45,7 @@ Included in `/deployment` are bash scripts. They automate:
 
 ### Systemd Services 
 KrishiMitra includes native Ubuntu/Debian background process management, ensuring it reboots securely without human interaction.
-There are 4 distinct services deployed to `/etc/systemd/system/`:
-1. `krishimitra-backend.service`: Runs `uvicorn` on port 8000.
-2. `krishimitra-frontend.service`: Serves the static Vite build locally via `serve` on port 3000 mapping globally.
-3. `krishimitra-sensors.service`: Runs the continuous `sensor_hub.py` sensing loop.
-4. `krishimitra-tft.service`: Controls the ST7735 screen draw operations independent of the backend load.
+There are 3 distinct services deployed to `/etc/systemd/system/`:
+1. `krishimitra-backend.service`: Runs `uvicorn` on port 8000, and natively serves the React frontend `dist/` directory from `/`.
+2. `krishimitra-sensors.service`: Runs the continuous `sensor_hub.py` sensing loop.
+3. `krishimitra-tft.service`: Controls the ST7735 screen draw operations independent of the backend load.

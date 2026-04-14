@@ -6,7 +6,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 } from 'recharts';
 
-const API = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:8000`;
+const API = import.meta.env.VITE_API_URL || "";
 
 const TABS = [
   { key: 'air_temp',      label: 'Air Temp',     color: '#f97316', unit: '°C' },

@@ -26,13 +26,8 @@ npm install -q
 npm run build
 echo "  ✅ Frontend built"
 
-# 3. Install serve for frontend hosting
-echo "[3/4] Installing serve..."
-npm install -g serve -q
-echo "  ✅ serve installed"
-
-# 4. Copy OpenClaw files
-echo "[4/4] Copying OpenClaw knowledge files..."
+# 3. Copy OpenClaw files
+echo "[3/3] Copying OpenClaw knowledge files..."
 cd "$PROJECT_DIR"
 mkdir -p "$WORKSPACE_DIR/memory" "$WORKSPACE_DIR/projects"
 for f in SOUL AGENTS USER TOOLS MEMORY; do
@@ -49,11 +44,8 @@ echo ""
 echo "  Terminal 2 (Sensors + LCD):"
 echo "    cd $PROJECT_DIR && python3 sensor_hub.py"
 echo ""
-echo "  Terminal 3 (Frontend):"
-echo "    cd $PROJECT_DIR/frontend && serve -s dist -l 3000"
-echo ""
-echo "  Terminal 4 (TFT Display — optional):"
+echo "  Terminal 3 (TFT Display — optional):"
 echo "    cd $PROJECT_DIR && python3 display_tft.py"
 echo ""
-echo "  🌐 Dashboard: http://$(hostname -I | awk '{print $1}'):3000"
+echo "  🌐 Dashboard: http://$(hostname -I | awk '{print $1}'):8000"
 echo "  📡 API Docs : http://$(hostname -I | awk '{print $1}'):8000/docs"

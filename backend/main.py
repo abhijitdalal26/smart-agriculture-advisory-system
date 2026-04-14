@@ -6,6 +6,9 @@ Starts the server, loads all ML models on startup, registers all routers.
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+import os
 
 from backend.database import init_db
 from backend.models.crop_recommender   import recommender
@@ -71,3 +74,24 @@ def root():
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+# ── Frontend Hosting (Single-Port Pi Mount) ──────────────────────────────────
+frontend_dist = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "frontend", "dist"))
+
+# Mount assets natively
+if os.path.exists(os.path.join(frontend_dist, "assets")):
+    app.mount("/assets", StaticFiles(directory=os.path.join(frontend_dist, "assets")), name="assets")
+
+@app.get("/{full_path:path}")
+async def serve_frontend(full_path: str):
+    if full_path.startswith("api/"):
+        return {"error": "API Route Not Found"}
+    
+    file_path = os.path.join(frontend_dist, full_path)
+    if os.path.isfile(file_path):
+        return FileResponse(file_path)
+        
+    fallback = os.path.join(frontend_dist, "index.html")
+    if os.path.isfile(fallback):
+        return FileResponse(fallback)
+    return {"error": "Frontend build (dist) not found. Run npm run build."}

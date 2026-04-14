@@ -40,12 +40,8 @@ npm install
 npm run build
 cd "$PROJECT"
 
-# ── 5. Install 'serve' to host built frontend ─────────────────────────────────
-echo "[5/7] Installing 'serve' for frontend hosting..."
-npm install -g serve
-
-# ── 6. Copy OpenClaw knowledge files ─────────────────────────────────────────
-echo "[6/7] Installing OpenClaw knowledge files..."
+# ── 5. Copy OpenClaw knowledge files ─────────────────────────────────────────
+echo "[5/6] Installing OpenClaw knowledge files..."
 cp -u "$PROJECT/openclaw/SOUL.md"   "$WORKSPACE/SOUL.md"
 cp -u "$PROJECT/openclaw/AGENTS.md" "$WORKSPACE/AGENTS.md"
 cp -u "$PROJECT/openclaw/USER.md"   "$WORKSPACE/USER.md"
@@ -54,24 +50,22 @@ cp -u "$PROJECT/openclaw/MEMORY.md" "$WORKSPACE/MEMORY.md"
 mkdir -p "$WORKSPACE/memory"
 mkdir -p "$WORKSPACE/projects"
 
-# ── 7. Install and enable systemd services ────────────────────────────────────
-echo "[7/7] Setting up systemd services..."
+# ── 6. Install and enable systemd services ────────────────────────────────────
+echo "[6/6] Setting up systemd services..."
 cp "$DEPLOY"/*.service /etc/systemd/system/
 systemctl daemon-reload
 systemctl enable krishimitra-backend.service
 systemctl enable krishimitra-sensors.service
 systemctl enable krishimitra-tft.service
-systemctl enable krishimitra-frontend.service
 systemctl start  krishimitra-backend.service
 sleep 3
 systemctl start  krishimitra-sensors.service
 systemctl start  krishimitra-tft.service
-systemctl start  krishimitra-frontend.service
 
 echo ""
 echo "✅ KrishiMitra is running!"
 echo ""
-echo "  🌐 Dashboard : http://$(hostname -I | awk '{print $1}'):3000"
+echo "  🌐 Dashboard : http://$(hostname -I | awk '{print $1}'):8000"
 echo "  📡 API Docs  : http://$(hostname -I | awk '{print $1}'):8000/docs"
 echo ""
 echo "Check service status: systemctl status krishimitra-backend"
