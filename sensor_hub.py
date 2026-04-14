@@ -61,12 +61,21 @@ last_hum  = 0.0
 
 # ── DS18B20 (Soil Temperature, 1-Wire) ───────────────────────────────────────
 _base_dir     = '/sys/bus/w1/devices/'
-_device_folder = glob.glob(_base_dir + '28*')
-_device_file  = _device_folder[0] + '/w1_slave' if _device_folder else None
+
+def _get_ds18b20_file():
+    folders = glob.glob(_base_dir + '28*')
+    if folders:
+        return folders[0] + '/w1_slave'
+    return None
+
+_device_file = _get_ds18b20_file()
 
 def read_soil_temp() -> float | None:
+    global _device_file
     if not _device_file:
-        return None
+        _device_file = _get_ds18b20_file()
+        if not _device_file:
+            return None
     try:
         with open(_device_file, 'r') as f:
             lines = f.readlines()
@@ -194,6 +203,9 @@ try:
                 except Exception: pass
                 time.sleep(2)
                 ser = connect_serial()
+        else:
+            # Try to connect if it wasn't available at startup
+            ser = connect_serial()
 
         # ── Build payload ────────────────────────────────────────────────────
         sensor_data = {
