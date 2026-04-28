@@ -25,6 +25,7 @@ frontend/dist/
 .idea/
 *.swp
 *.swo
+.obsidian/
 
 # macOS / Windows
 .DS_Store
@@ -32,6 +33,9 @@ Thumbs.db
 
 # Jupyter checkpoints
 .ipynb_checkpoints/
+
+# Local workspace artifacts
+local_files/
 
 # Model files (large — already in repo, keep tracked)
 # model/*.json  ← keep
