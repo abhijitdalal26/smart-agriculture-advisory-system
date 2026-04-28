@@ -1,3 +1,5 @@
+// ManualInputPanel — NPK/soil color + crop/state dropdowns
+// Persists values: loads from backend on mount, saves to localStorage as backup
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Palette, Baseline, RefreshCw, CheckCircle2 } from 'lucide-react';
@@ -21,21 +23,73 @@ const INDIAN_STATES = [
   'Jharkhand', 'Himachal Pradesh', 'Uttarakhand', 'Assam', 'Kerala',
 ];
 
-export default function ManualInputPanel({ onSubmit }) {
-  const [npkMode, setNpkMode]     = useState('color');  // 'color' | 'manual'
-  const [soilColor, setSoilColor] = useState(null);
-  const [N, setN] = useState(40); const [P, setP] = useState(30); const [K, setK] = useState(40);
-  const [soilType, setSoilType]   = useState('Loamy');
-  const [cropType, setCropType]   = useState('Wheat');
-  const [state, setState]         = useState('Maharashtra');
-  const [area, setArea]           = useState(1.0);
-  const [submitting, setSubmitting] = useState(false);
-  const [success, setSuccess]     = useState(false);
+const LS_KEY = 'krishimitra_manual_inputs';
 
+function loadFromLocalStorage() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
+function saveToLocalStorage(data) {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(data)); } catch {}
+}
+
+export default function ManualInputPanel({ onSubmit }) {
+  const [npkMode,    setNpkMode]    = useState('color');
+  const [soilColor,  setSoilColor]  = useState(null);
+  const [N, setN] = useState(40);
+  const [P, setP] = useState(30);
+  const [K, setK] = useState(40);
+  const [soilType,   setSoilType]   = useState('Loamy');
+  const [cropType,   setCropType]   = useState('Wheat');
+  const [state,      setState]      = useState('Maharashtra');
+  const [area,       setArea]       = useState(1.0);
+  const [submitting, setSubmitting] = useState(false);
+  const [success,    setSuccess]    = useState(false);
+  const [loaded,     setLoaded]     = useState(false);
+
+  // On mount: load saved values from backend first, fallback to localStorage
   useEffect(() => {
-    axios.get(`${API}/api/weather/location`, { timeout: 5000 })
-      .then(r => { if (r.data?.state) setState(r.data.state); })
-      .catch(() => {});
+    const applyValues = (d) => {
+      if (!d) return;
+      if (d.manual_nitrogen    != null) { setN(d.manual_nitrogen);    setNpkMode('manual'); }
+      if (d.manual_phosphorous != null)   setP(d.manual_phosphorous);
+      if (d.manual_potassium   != null)   setK(d.manual_potassium);
+      if (d.manual_soil_color  != null) { setSoilColor(d.manual_soil_color); setNpkMode('color'); }
+      if (d.manual_soil_type   != null)   setSoilType(d.manual_soil_type);
+      if (d.manual_crop_type   != null)   setCropType(d.manual_crop_type);
+      if (d.manual_state       != null)   setState(d.manual_state);
+      if (d.manual_area        != null)   setArea(d.manual_area);
+    };
+
+    // 1. Try backend (source of truth)
+    axios.get(`${API}/api/sensors/latest`, { timeout: 5000 })
+      .then(r => {
+        const d = r.data;
+        const hasManual = d.manual_nitrogen != null || d.manual_soil_color != null;
+        if (hasManual) {
+          applyValues(d);
+          saveToLocalStorage(d); // keep localStorage in sync
+        } else {
+          // 2. Fallback to localStorage if backend has no manual overrides yet
+          const ls = loadFromLocalStorage();
+          if (ls) applyValues(ls);
+          else {
+            // 3. Final fallback: auto-detect state from IP
+            axios.get(`${API}/api/weather/location`, { timeout: 5000 })
+              .then(r2 => { if (r2.data?.state) setState(r2.data.state); })
+              .catch(() => {});
+          }
+        }
+        setLoaded(true);
+      })
+      .catch(() => {
+        const ls = loadFromLocalStorage();
+        if (ls) applyValues(ls);
+        setLoaded(true);
+      });
   }, []);
 
   const selectColor = (sc) => {
@@ -45,16 +99,33 @@ export default function ManualInputPanel({ onSubmit }) {
 
   const handleSubmit = async () => {
     setSubmitting(true);
+    const resolvedN = npkMode === 'manual' ? N : (SOIL_COLORS.find(s => s.name === soilColor)?.npk.N ?? N);
+    const resolvedP = npkMode === 'manual' ? P : (SOIL_COLORS.find(s => s.name === soilColor)?.npk.P ?? P);
+    const resolvedK = npkMode === 'manual' ? K : (SOIL_COLORS.find(s => s.name === soilColor)?.npk.K ?? K);
+
     const payload = {
-      nitrogen:    npkMode === 'manual' ? N    : (SOIL_COLORS.find(s => s.name === soilColor)?.npk.N ?? N),
-      phosphorous: npkMode === 'manual' ? P    : (SOIL_COLORS.find(s => s.name === soilColor)?.npk.P ?? P),
-      potassium:   npkMode === 'manual' ? K    : (SOIL_COLORS.find(s => s.name === soilColor)?.npk.K ?? K),
+      nitrogen:    resolvedN,
+      phosphorous: resolvedP,
+      potassium:   resolvedK,
       soil_color:  soilColor,
       soil_type:   soilType,
       crop_type:   cropType,
       state,
       area,
     };
+
+    // Save to localStorage immediately so values survive page refresh
+    saveToLocalStorage({
+      manual_nitrogen:    resolvedN,
+      manual_phosphorous: resolvedP,
+      manual_potassium:   resolvedK,
+      manual_soil_color:  soilColor,
+      manual_soil_type:   soilType,
+      manual_crop_type:   cropType,
+      manual_state:       state,
+      manual_area:        area,
+    });
+
     try {
       await axios.post(`${API}/api/sensors/manual`, payload, { timeout: 5000 });
       setSuccess(true);
@@ -63,6 +134,12 @@ export default function ManualInputPanel({ onSubmit }) {
     } catch (_) {}
     finally { setSubmitting(false); }
   };
+
+  if (!loaded) return (
+    <div className="card input-card input-row" style={{ opacity: 0.6 }}>
+      <div className="card-title">🧪 Manual Input — Loading saved values…</div>
+    </div>
+  );
 
   return (
     <div className="card input-row">

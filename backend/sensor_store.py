@@ -25,6 +25,14 @@ DEFAULT_SENSORS = {
     "soil_ph":       None,
     "light_lux":     None,
     "updated_at":    None,
+    "manual_nitrogen": None,
+    "manual_phosphorous": None,
+    "manual_potassium": None,
+    "manual_soil_color": None,
+    "manual_crop_type": None,
+    "manual_soil_type": None,
+    "manual_state": None,
+    "manual_area": None,
 }
 
 

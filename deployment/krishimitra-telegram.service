@@ -1,0 +1,18 @@
+[Unit]
+Description=KrishiMitra Telegram Proactive Alert Monitor
+After=network.target krishimitra-backend.service
+Wants=krishimitra-backend.service
+
+[Service]
+Type=simple
+User=ess
+WorkingDirectory=/home/ess/.openclaw/workspace/smart-agriculture-advisory-system
+ExecStart=/usr/bin/python3 /home/ess/.openclaw/workspace/smart-agriculture-advisory-system/openclaw/scripts/telegram_monitor.py
+Restart=always
+RestartSec=30
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=krishimitra-telegram
+
+[Install]
+WantedBy=multi-user.target

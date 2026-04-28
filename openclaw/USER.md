@@ -9,8 +9,8 @@
 
 ## Farm Details
 - **Controller:** Raspberry Pi 4B (hostname: `ess`, username: `ess`)
-- **Pi IP:** 10.186.162.189 (may change if DHCP lease changes)
-- **Workspace:** `/home/ess/.openclaw/workspace/krishimitra/`
+- **Pi IP:** 10.242.224.189 (Static lease assigned)
+- **Workspace:** `/home/ess/.openclaw/workspace/smart-agriculture-advisory-system/`
 - **Default State:** Maharashtra (overridable from dashboard)
 - **Default Season:** Auto-detected from calendar month.
 

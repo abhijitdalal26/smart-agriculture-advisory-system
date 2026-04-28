@@ -44,6 +44,37 @@ class ManualInputPayload(BaseModel):
     area:        Optional[float] = None
 
 
+# ──────────────────────── Validation ────────────────────────────────────────
+
+def _sanitize(payload: dict) -> dict:
+    """
+    Reject physically impossible sensor readings before they corrupt ML models.
+    Returns a cleaned payload with bad values removed (set to None).
+    """
+    out = dict(payload)
+    if out.get("air_temp") is not None:
+        if not (-10 <= out["air_temp"] <= 60):  # degrees C sane range
+            out["air_temp"] = None
+    if out.get("air_humidity") is not None:
+        if not (0 <= out["air_humidity"] <= 100):
+            out["air_humidity"] = None
+    if out.get("soil_moisture") is not None:
+        if not (0 <= out["soil_moisture"] <= 100):
+            out["soil_moisture"] = None
+    if out.get("soil_ph") is not None:
+        # pH must be 0–14. Any reading outside this is a sensor error.
+        if not (0 <= out["soil_ph"] <= 14):
+            print(f"[sensors] Rejected bad pH reading: {out['soil_ph']} (out of 0–14 range)")
+            out["soil_ph"] = None
+    if out.get("soil_temp") is not None:
+        if not (-10 <= out["soil_temp"] <= 60):
+            out["soil_temp"] = None
+    if out.get("light_lux") is not None:
+        if out["light_lux"] < 0:
+            out["light_lux"] = 0.0
+    return out
+
+
 # ──────────────────────────── Endpoints ──────────────────────────────────────
 
 @router.get("/latest")
@@ -93,7 +124,9 @@ def update_sensors(payload: SensorUpdatePayload, db: Session = Depends(get_db)):
     Updates in-memory cache but throttles SQLite persistence to every 15 minutes.
     """
     global last_db_write
-    data = payload.model_dump(exclude_none=True)
+    data = _sanitize(payload.model_dump(exclude_none=True))
+    # Remove keys that validation set to None
+    data = {k: v for k, v in data.items() if v is not None}
     sensor_store.update(data)
 
     now = datetime.utcnow()

@@ -72,6 +72,16 @@ GET /api/alerts             → list of active threshold alerts with severity
 | Sandy Soil  | 15 | 10 | 20  |
 | Clay Soil   | 50 | 35 | 45  |
 
+## System Command Execution
+The agent has direct access to the Raspberry Pi terminal for administrative tasks.
+```bash
+# Example operations
+python3 sensor_hub.py         # Start sensor daemon
+systemctl restart krishimitra  # Restart services
+cat sensors.json              # Read immediate state
+mkdir -p /path/to/new_dir     # Create directories
+```
+
 ## Alert Thresholds
 | Parameter     | Low    | High  |
 |---------------|--------|-------|

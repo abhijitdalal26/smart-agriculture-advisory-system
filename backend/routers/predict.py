@@ -180,7 +180,7 @@ async def predict_all(db: Session = Depends(get_db)):
 
     # ── Run all 4 models ─────────────────────────────────────────────────────
     crop  = recommender.predict(N, P, K, air_temp, air_humidity, soil_ph, rainfall)
-    yield_val = predictor.predict(state, crop, area, season)
+    yield_val = max(0.0, predictor.predict(state, crop, area, season))  # clamp — model can return negative on bad inputs
     irr   = irr_advisor.predict(soil_type, soil_ph, soil_moisture,
                                 air_temp, air_humidity, rainfall, 10.0, season, "Central")
     fert  = fert_advisor.predict(air_temp, air_humidity, soil_moisture,
